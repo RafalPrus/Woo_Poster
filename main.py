@@ -2,6 +2,7 @@ import os
 import requests
 from woocommerce import API
 from config import url_woocommerce, consumer_key, consumer_secret, url_wordpress, username_wordpress, password_wordpress
+from dataclasses import dataclass
 
 
 # Inicjalizacja API Woocommerce
@@ -24,6 +25,11 @@ product_data = {
         }
     ]
 }
+@dataclass
+def Product():
+    name: str
+    description: str
+    categories: list[dict]
 
 # dodawanie produktu do sklepu
 response = wcapi.post("products", product_data).json()
