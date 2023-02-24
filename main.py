@@ -6,11 +6,7 @@ from dataclasses import dataclass
 
 
 # Inicjalizacja API Woocommerce
-wcapi = API(
-    url=url_woocommerce,
-    consumer_key=consumer_key,
-    consumer_secret=consumer_secret,
-)
+
 
 # dane produktu
 product_data = {
@@ -25,11 +21,34 @@ product_data = {
         }
     ]
 }
+
+class Application():
+    WCAPI = API(
+        url=url_woocommerce,
+        consumer_key=consumer_key,
+        consumer_secret=consumer_secret,
+    )
+
+    def add_product(self, product_details: dict) -> str:
+        response = self.WCAPI.post("products", product_details).json()
+        product_id = response.get('id')
+        return product_id
+
 @dataclass
-def Product():
+class Product():
     name: str
     description: str
     categories: list[dict]
+
+    def set_export_details(self):
+        export = {
+            "name": self.name,
+            "description": self.description,
+            "categories": self.categories
+        }
+
+        return export
+
 
 # dodawanie produktu do sklepu
 response = wcapi.post("products", product_data).json()
