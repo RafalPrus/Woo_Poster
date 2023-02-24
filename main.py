@@ -41,12 +41,29 @@ class Product():
     _categories: list[dict]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @name.setter
-    def name(self, product_name):
+    def name(self, product_name: str):
         self._name = product_name
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @name.setter
+    def description(self, product_description: str):
+        self._description = product_description
+
+    @property
+    def categories(self) -> list[dict]:
+        return self._categories
+
+    @name.setter
+    def description(self, category_list: list[dict]):
+        self._categories = category_list
+
     def set_export_details(self):
         export = {
             "name": self._name,
