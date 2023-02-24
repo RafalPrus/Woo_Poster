@@ -36,15 +36,22 @@ class Application():
 
 @dataclass
 class Product():
-    name: str
-    description: str
-    categories: list[dict]
+    _name: str
+    _description: str
+    _categories: list[dict]
 
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, product_name):
+        self._name = product_name
     def set_export_details(self):
         export = {
-            "name": self.name,
-            "description": self.description,
-            "categories": self.categories
+            "name": self._name,
+            "description": self._description,
+            "categories": self._categories
         }
 
         return export
