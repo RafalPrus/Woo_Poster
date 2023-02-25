@@ -29,10 +29,59 @@ class Application():
         consumer_secret=consumer_secret,
     )
 
-    def add_product(self, product_details: dict) -> str:
+    def add_product_details(self, product_details: dict) -> str:
         response = self.WCAPI.post("products", product_details).json()
         product_id = response.get('id')
         return product_id
+
+
+    def scan_product_folder(self):
+        os.chdir('products')
+        products_folder = os.getcwd()
+        for product in os.listdir(products_folder):
+            if self.check_thumbnails_exists(product):
+                self.create_new_product(product)
+
+    def check_thumbnails_exists(self, product):
+        os.chdir(product)
+        product_folder = os.getcwd()
+        if 'small' in os.listdir(product_folder):
+            return True
+        else:
+            os.chdir('..')
+            return False
+
+
+
+    def create_new_product(self, product):
+        os.chdir('small')
+        images_folder = os.getcwd()
+        images_ids = []
+        for file_name in os.listdir(images_folder):
+            if file_name.endswith(".jpg"):
+                file_path = os.path.join(images_folder, file_name)
+
+                # Otwórz plik ze zdjęciem i przeczytaj jego zawartość
+                with open(file_name, "rb") as image_file:
+                    image_data = image_file.read()
+
+                # Wyślij zapytanie POST z danymi autoryzacyjnymi i danymi pliku
+                response = requests.post(
+                    url_wordpress,
+                    auth=(username_wordpress, password_wordpress),
+                    files={"file": (file_name, image_data)}
+                )
+
+                # Wyświetl odpowiedź serwera
+                print(response.json())
+                image_id = response.json().get("id")
+                print(image_id)
+                if response.status_code == 201:
+                    image_id = response.json().get("id")
+                    images_ids.append(image_id)
+                else:
+                    print(response.status_code)
+                    print(response)
 
 @dataclass
 class Product():
