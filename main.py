@@ -8,19 +8,7 @@ from dataclasses import dataclass
 # Inicjalizacja API Woocommerce
 
 
-# dane produktu
-product_data = {
-    "name": "Ultimate 2",
-    "description": "Opis testowego produktu",
-    "categories": [
-        {
-            "id": 711
-        },
-{
-            "id": 33
-        }
-    ]
-}
+
 
 class Application():
     WCAPI = API(
@@ -30,33 +18,63 @@ class Application():
     )
 
 
-    def add_product(self, product_details: dict) -> None:
+
+    def main(self):
+        self.scan_product_folder()
+
+
+    def add_product(self, new_product) -> None:
+        product_details = new_product.set_export_details()
         response = self.WCAPI.post("products", product_details).json()
         product_id = response.get('id')
-        product_details.product_id = product_id
+        print('ID PRODUCKTU')
+        print(product_id)
+        new_product.product_id = product_id
 
 
     def scan_product_folder(self):
         os.chdir('products')
         products_folder = os.getcwd()
-        for product in os.listdir(products_folder):
-            if self.check_thumbnails_exists(product):
-                self.add_images(product)
+        for product_name in os.listdir(products_folder):
+            if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
+                print('skanowanie folderow')
+                print(f'sciezka: {os.getcwd()}')
+                new_product = Product()
+                self.get_info(product_name, new_product)
+                self.add_images(product_name, new_product)
+                print('rozpoczynam dodawanie produktu...')
+                self.add_product(new_product)
+                print('rozpoczynam dodawanie zdjec do produktu...')
+                self.add_images_to_product(new_product)
 
-    def check_thumbnails_exists(self, product):
-        os.chdir(product)
+
+
+    def check_thumbnails_exists(self, product_name):
+        print('w skanowanie folderow')
+        os.chdir(product_name)
         product_folder = os.getcwd()
         if 'small' in os.listdir(product_folder):
+            os.chdir('..')
+            return True
+        else:
+            os.chdir('..')
+            return False
+
+    def check_product_info_exists(self, product_name):
+        os.chdir(product_name)
+        product_folder = os.getcwd()
+        if 'info.txt' in os.listdir(product_folder):
+            os.chdir('..')
             return True
         else:
             os.chdir('..')
             return False
 
 
-    def add_images(self, product):
+    def add_images(self, product_name, new_product):
+        os.chdir(product_name)
         os.chdir('small')
         images_folder = os.getcwd()
-        images_ids = []
         for file_name in os.listdir(images_folder):
             if file_name.endswith(".jpg"):
                 file_path = os.path.join(images_folder, file_name)
@@ -72,30 +90,43 @@ class Application():
                     files={"file": (file_name, image_data)}
                 )
 
-                # Wyświetl odpowiedź serwera
-                print(response.json())
                 image_id = response.json().get("id")
-                print(image_id)
+
                 if response.status_code == 201:
+                    print(response.status_code)
+                    print(response)
                     image_id = response.json().get("id")
-                    product.add_id(image_id)
+                    new_product.add_id(image_id)
                 else:
                     print(response.status_code)
                     print(response)
         os.chdir('..')
 
     def add_images_to_product(self, product):
-        images_id = product.images_id
+        images_id = product.get_images_id
         product_id = product.product_id
         self.WCAPI.post("products/%d" % product_id, {"images": [{"id": image_id} for image_id in images_id]})
 
-@dataclass
+    def get_info(self, product_name: str, new_product, info_file='info.txt'):
+        os.chdir(product_name)
+        with open(info_file) as info:
+            full_info = info.readlines()
+            new_product.name = full_info[2]
+            new_product.description = ' '.join(full_info[2:])
+            categories = []
+            for cat in full_info[0].split(' '):
+                categories.append({'id': int(cat) })
+            new_product.categories = categories
+        os.chdir('..')
+
+
 class Product():
-    _name: str
-    _description: str
-    _categories: list[dict]
-    _product_id: str
-    _images_id: []
+    def __init__(self, name='', descripton='', categories=None, product_id=''):
+        self._name = name
+        self._description = descripton
+        self._categories = categories
+        self._product_id = product_id
+        self._images_id = []
 
     @property
     def name(self) -> str:
@@ -118,7 +149,7 @@ class Product():
         return self._categories
 
     @categories.setter
-    def description(self, category_list: list[dict]):
+    def categories(self, category_list: list[dict]):
         self._categories = category_list
 
 
@@ -127,16 +158,17 @@ class Product():
         return self._product_id
 
     @product_id.setter
-    def name(self, id: str):
+    def product_id(self, id: str):
         self._product_id = id
 
 
     @property
-    def images_id(self) -> list:
+    def get_images_id(self) -> list:
         return self._images_id
 
 
     def add_id(self, id: str):
+        print(self.get_images_id)
         self._images_id.append(id)
 
     def set_export_details(self):
@@ -149,39 +181,8 @@ class Product():
         return export
 
 
-# dodawanie produktu do sklepu
-response = wcapi.post("products", product_data).json()
-product_id = response.get('id')
+if __name__ == '__main__':
+    app = Application()
+    app.main()
 
-os.chdir('products')
-current_path = os.getcwd()
-image_folder = current_path
-images_ids = []
-for file_name in os.listdir(image_folder):
-    if file_name.endswith(".jpg"):
-        file_path = os.path.join(image_folder, file_name)
 
-        # Otwórz plik ze zdjęciem i przeczytaj jego zawartość
-        with open(file_name, "rb") as image_file:
-            image_data = image_file.read()
-
-        # Wyślij zapytanie POST z danymi autoryzacyjnymi i danymi pliku
-        response = requests.post(
-            url_wordpress,
-            auth=(username_wordpress, password_wordpress),
-            files={"file": (file_name, image_data)}
-        )
-
-        # Wyświetl odpowiedź serwera
-        print(response.json())
-        image_id = response.json().get("id")
-        print(image_id)
-        if response.status_code == 201:
-            image_id = response.json().get("id")
-            images_ids.append(image_id)
-        else:
-            print(response.status_code)
-            print(response)
-print(images_ids)
-print([{"id": image_id} for image_id in images_ids])
-wcapi.post("products/%d" % product_id, {"images": [{"id": image_id} for image_id in images_ids]})
