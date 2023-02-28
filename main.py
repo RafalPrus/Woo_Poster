@@ -29,10 +29,11 @@ class Application():
         consumer_secret=consumer_secret,
     )
 
-    def add_product_details(self, product_details: dict) -> str:
+
+    def add_product(self, product_details: dict) -> None:
         response = self.WCAPI.post("products", product_details).json()
         product_id = response.get('id')
-        return product_id
+        product_details.product_id = product_id
 
 
     def scan_product_folder(self):
@@ -40,7 +41,7 @@ class Application():
         products_folder = os.getcwd()
         for product in os.listdir(products_folder):
             if self.check_thumbnails_exists(product):
-                self.create_new_product(product)
+                self.add_images(product)
 
     def check_thumbnails_exists(self, product):
         os.chdir(product)
@@ -52,8 +53,7 @@ class Application():
             return False
 
 
-
-    def create_new_product(self, product):
+    def add_images(self, product):
         os.chdir('small')
         images_folder = os.getcwd()
         images_ids = []
@@ -78,16 +78,24 @@ class Application():
                 print(image_id)
                 if response.status_code == 201:
                     image_id = response.json().get("id")
-                    images_ids.append(image_id)
+                    product.add_id(image_id)
                 else:
                     print(response.status_code)
                     print(response)
+        os.chdir('..')
+
+    def add_images_to_product(self, product):
+        images_id = product.images_id
+        product_id = product.product_id
+        self.WCAPI.post("products/%d" % product_id, {"images": [{"id": image_id} for image_id in images_id]})
 
 @dataclass
 class Product():
     _name: str
     _description: str
     _categories: list[dict]
+    _product_id: str
+    _images_id: []
 
     @property
     def name(self) -> str:
@@ -101,7 +109,7 @@ class Product():
     def description(self) -> str:
         return self._description
 
-    @name.setter
+    @description.setter
     def description(self, product_description: str):
         self._description = product_description
 
@@ -109,9 +117,27 @@ class Product():
     def categories(self) -> list[dict]:
         return self._categories
 
-    @name.setter
+    @categories.setter
     def description(self, category_list: list[dict]):
         self._categories = category_list
+
+
+    @property
+    def product_id(self) -> str:
+        return self._product_id
+
+    @product_id.setter
+    def name(self, id: str):
+        self._product_id = id
+
+
+    @property
+    def images_id(self) -> list:
+        return self._images_id
+
+
+    def add_id(self, id: str):
+        self._images_id.append(id)
 
     def set_export_details(self):
         export = {
