@@ -2,10 +2,6 @@ import os
 import requests
 from woocommerce import API
 from config import url_woocommerce, consumer_key, consumer_secret, url_wordpress, username_wordpress, password_wordpress
-from dataclasses import dataclass
-
-
-# Inicjalizacja API Woocommerce
 
 
 
@@ -17,10 +13,14 @@ class Application():
         consumer_secret=consumer_secret,
     )
 
+    FINISHED = []
+    UNFINISHED = []
+
 
 
     def main(self):
         self.scan_product_folder()
+        self.print_report()
 
 
     def add_product(self, new_product) -> None:
@@ -32,25 +32,32 @@ class Application():
         new_product.product_id = product_id
 
 
+    def print_report(self):
+        print(f'Pomyślnie dodano: {Application.FINISHED}')
+
+
     def scan_product_folder(self):
         os.chdir('products')
         products_folder = os.getcwd()
         for product_name in os.listdir(products_folder):
             if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
-                print('skanowanie folderow')
-                print(f'sciezka: {os.getcwd()}')
-                new_product = Product()
-                self.get_info(product_name, new_product)
-                self.add_images(product_name, new_product)
-                print('rozpoczynam dodawanie produktu...')
-                self.add_product(new_product)
-                print('rozpoczynam dodawanie zdjec do produktu...')
-                self.add_images_to_product(new_product)
+                try:
+                    new_product = Product()
+                    self.get_info(product_name, new_product) # Update class Product with infromations from info.txt file
+                    self.add_images(product_name, new_product)
+                    self.add_product(new_product)
+                    self.add_images_to_product(new_product)
+                    Application.FINISHED.append(new_product.name.strip()) # Add product name to finished list
+                except:
+                    if new_product:
+                        Application.UNFINISHED.append(new_product.name.strip())
+                    else:
+                        Application.UNFINISHED.append('Unknown')
 
 
 
+    # check if folder with thumbnails exist
     def check_thumbnails_exists(self, product_name):
-        print('w skanowanie folderow')
         os.chdir(product_name)
         product_folder = os.getcwd()
         if 'small' in os.listdir(product_folder):
@@ -60,6 +67,7 @@ class Application():
             os.chdir('..')
             return False
 
+    # check if file info.txt - with product information - exist
     def check_product_info_exists(self, product_name):
         os.chdir(product_name)
         product_folder = os.getcwd()
@@ -77,30 +85,28 @@ class Application():
         images_folder = os.getcwd()
         for file_name in os.listdir(images_folder):
             if file_name.endswith(".jpg"):
-                file_path = os.path.join(images_folder, file_name)
-
-                # Otwórz plik ze zdjęciem i przeczytaj jego zawartość
+                # Open file with image
                 with open(file_name, "rb") as image_file:
                     image_data = image_file.read()
 
-                # Wyślij zapytanie POST z danymi autoryzacyjnymi i danymi pliku
+                # Send POST request with authorization data and file data
                 response = requests.post(
                     url_wordpress,
                     auth=(username_wordpress, password_wordpress),
                     files={"file": (file_name, image_data)}
                 )
 
-                image_id = response.json().get("id")
-
-                if response.status_code == 201:
-                    print(response.status_code)
-                    print(response)
-                    image_id = response.json().get("id")
-                    new_product.add_id(image_id)
-                else:
-                    print(response.status_code)
-                    print(response)
+                self.read_response(response, new_product)
         os.chdir('..')
+
+
+    def read_response(self, response, product):
+        if response.status_code == 201:
+            image_id = response.json().get("id")
+            product.add_id(image_id)
+        else:
+            print(response.status_code)
+            print(response)
 
     def add_images_to_product(self, product):
         images_id = product.get_images_id
