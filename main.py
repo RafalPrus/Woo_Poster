@@ -15,6 +15,11 @@ class Application():
 
     FINISHED = []
     UNFINISHED = []
+    SHORTCUT = 'd'
+    DESCRIPTION = 'DODAJ PRODUKTY NA STRONĘ'
+
+    def __init__(self):
+        self.main()
 
 
 
