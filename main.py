@@ -62,7 +62,7 @@ class Application():
 
 
     # check if folder with thumbnails exist
-    def check_thumbnails_exists(self, product_name):
+    def check_thumbnails_exists(self, product_name) -> bool:
         os.chdir(product_name)
         product_folder = os.getcwd()
         if 'small' in os.listdir(product_folder):
@@ -73,7 +73,7 @@ class Application():
             return False
 
     # check if file info.txt - with product information - exist
-    def check_product_info_exists(self, product_name):
+    def check_product_info_exists(self, product_name) -> bool:
         os.chdir(product_name)
         product_folder = os.getcwd()
         if 'info.txt' in os.listdir(product_folder):
@@ -190,6 +190,24 @@ class Product():
         }
 
         return export
+
+
+class Products_Validator(Application):
+    VALID = []
+    INVALID_THUMBNAILS = []
+    INVALID_INFO = []
+
+    def check_folders(self) -> None:
+        os.chdir('products')
+        products_folder = os.getcwd()
+        for product_name in os.listdir(products_folder):
+            if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
+                Products_Validator.VALID.append(product_name)
+            elif self.check_thumbnails_exists(product_name) == False:
+                Products_Validator.INVALID_THUMBNAILS.append(product_name)
+            elif self.check_product_info_exists(product_name) == False:
+                Products_Validator.INVALID_INFO.append(product_name)
+
 
 
 if __name__ == '__main__':
