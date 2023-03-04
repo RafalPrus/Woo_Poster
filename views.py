@@ -1,5 +1,16 @@
 from main import Application
 
+
+class Raport():
+    SHORTCUT = 'r'
+    DESCRIPTION = 'RAPORTY'
+
+    def raport_month(self, month, year):
+        pass
+
+    def raport_recent(self):
+        pass
+
 class Exit():
     SHORTCUT = 'x'
     DESCRIPTION = 'ZAKOŃCZ PROGRAM'
@@ -8,7 +19,7 @@ class Exit():
         Exit.say_goodbye()
 
     @staticmethod
-    def say_goodbye(self):
+    def say_goodbye():
         print('Do zobaczenia!')
 
 
