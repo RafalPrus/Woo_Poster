@@ -1,7 +1,6 @@
-from main import Application
 
 
-class Raport():
+class Report():
     SHORTCUT = 'r'
     DESCRIPTION = 'RAPORTY'
 
@@ -15,24 +14,29 @@ class Exit():
     SHORTCUT = 'x'
     DESCRIPTION = 'ZAKOŃCZ PROGRAM'
 
-    def __init__(self):
-        Exit.say_goodbye()
 
     @staticmethod
     def say_goodbye():
         print('Do zobaczenia!')
 
+class Validator_Screen():
+    SHORTCUT = 's'
+    DESCRIPTION = 'SPRAWDŹ POPRAWNOŚĆ FOLDERÓW'
+
+class MainApp_Screen():
+    SHORTCUT = 'd'
+    DESCRIPTION = 'DODAJ PRODUKTY NA STRONĘ'
 
 
 class MainMenu():
     MENU = {
-        Application.SHORTCUT: Application(),
-        '[w] WYŚWIETL RAPORT': RAPORTS,
+        Validator_Screen.SHORTCUT: Validator_Screen(),
+        MainApp_Screen.SHORTCUT: MainApp_Screen(),
+        Report.SHORTCUT: Report(),
         Exit.SHORTCUT: Exit()
     }
     def __init__(self):
         self.draw_menu()
-        self.get_screen()
 
 
     def draw_menu(self):
@@ -46,6 +50,12 @@ class MainMenu():
         while option not in MainMenu.MENU:
             option = input("Wybierz opcję: ")
         return MainMenu.MENU[option]
+
+
+
+
+
+
 
 
 

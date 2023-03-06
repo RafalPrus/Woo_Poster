@@ -2,6 +2,7 @@ import os
 import requests
 from woocommerce import API
 from config import url_woocommerce, consumer_key, consumer_secret, url_wordpress, username_wordpress, password_wordpress
+from views import MainMenu, Validator_Screen, MainApp_Screen, Exit, Report
 
 
 
@@ -15,24 +16,29 @@ class Application():
 
     FINISHED = []
     UNFINISHED = []
-    SHORTCUT = 'd'
-    DESCRIPTION = 'DODAJ PRODUKTY NA STRONĘ'
-
-    def __init__(self):
-        self.main()
 
 
 
     def main(self):
-        self.scan_product_folder()
-        self.print_report()
+        while True:
+            menu = MainMenu()
+            screen = menu.get_screen()
+            if isinstance(screen, Validator_Screen):
+                Products_Validator()
+            elif isinstance(screen, MainApp_Screen):
+                self.scan_product_folder()
+                self.print_report()
+            else:
+                print("See you next time!!!!!!")  # I ended here
+                return False
+
 
 
     def add_product(self, new_product) -> None:
         product_details = new_product.set_export_details()
         response = self.WCAPI.post("products", product_details).json()
         product_id = response.get('id')
-        print('ID PRODUCKTU')
+        print('ID PRODUKTU')
         print(product_id)
         new_product.product_id = product_id
 
@@ -197,6 +203,12 @@ class Products_Validator(Application):
     INVALID_THUMBNAILS = []
     INVALID_INFO = []
 
+    def __init__(self):
+        self.check_folders()
+        self.report_valid()
+        self.report_invalid_thumbnails()
+        self.report_invalid_info()
+
     def check_folders(self) -> None:
         os.chdir('products')
         products_folder = os.getcwd()
@@ -208,10 +220,30 @@ class Products_Validator(Application):
             elif self.check_product_info_exists(product_name) == False:
                 Products_Validator.INVALID_INFO.append(product_name)
 
+    @staticmethod
+    def report_valid():
+        print('Prawidłowe foldery:')
+        for name in Products_Validator.VALID:
+            print(name)
+
+    @staticmethod
+    def report_invalid_thumbnails():
+        print('Foldery bez miniaturek:')
+        for name in Products_Validator.INVALID_THUMBNAILS:
+            print(name)
+
+    @staticmethod
+    def report_invalid_info():
+        print('Foldery bez pliku info.txt:')
+        for name in Products_Validator.INVALID_INFO:
+            print(name)
+
+
 
 
 if __name__ == '__main__':
     app = Application()
     app.main()
+
 
 
