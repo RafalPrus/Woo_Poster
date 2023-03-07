@@ -2,12 +2,10 @@ import os
 import requests
 from woocommerce import API
 from config import url_woocommerce, consumer_key, consumer_secret, url_wordpress, username_wordpress, password_wordpress
-from views import MainMenu, Validator_Screen, MainApp_Screen, Report
+from views import MainMenu, ValidatorScreen, MainAppScreen, Report
 
 
-
-
-class Application():
+class Application:
     WCAPI = API(
         url=url_woocommerce,
         consumer_key=consumer_key,
@@ -23,9 +21,9 @@ class Application():
         while True:
             menu = MainMenu()
             screen = menu.get_screen()
-            if isinstance(screen, Validator_Screen):
+            if isinstance(screen, ValidatorScreen):
                 Products_Validator()
-            elif isinstance(screen, MainApp_Screen):
+            elif isinstance(screen, MainAppScreen):
                 self.scan_product_folder()
                 self.print_report()
             elif isinstance(screen, Report):
@@ -140,7 +138,7 @@ class Application():
         os.chdir('..')
 
 
-class Product():
+class Product:
     def __init__(self, name='', descripton='', categories=None, product_id=''):
         self._name = name
         self._description = descripton

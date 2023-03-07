@@ -1,6 +1,6 @@
 
 
-class Report():
+class Report:
     SHORTCUT = 'r'
     DESCRIPTION = 'RAPORTY'
 
@@ -10,36 +10,39 @@ class Report():
     def raport_recent(self):
         pass
 
-class Exit():
+
+class Exit:
     SHORTCUT = 'x'
     DESCRIPTION = 'ZAKOŃCZ PROGRAM'
-
 
     @staticmethod
     def say_goodbye():
         print('Do zobaczenia!')
 
-class Validator_Screen():
+
+class ValidatorScreen:
     SHORTCUT = 's'
     DESCRIPTION = 'SPRAWDŹ POPRAWNOŚĆ FOLDERÓW'
 
-class MainApp_Screen():
+
+class MainAppScreen:
     SHORTCUT = 'd'
     DESCRIPTION = 'DODAJ PRODUKTY NA STRONĘ'
 
 
-class MainMenu():
+class MainMenu:
     MENU = {
-        Validator_Screen.SHORTCUT: Validator_Screen(),
-        MainApp_Screen.SHORTCUT: MainApp_Screen(),
+        ValidatorScreen.SHORTCUT: ValidatorScreen(),
+        MainAppScreen.SHORTCUT: MainAppScreen(),
         Report.SHORTCUT: Report(),
         Exit.SHORTCUT: Exit()
     }
+
     def __init__(self):
         self.draw_menu()
 
-
-    def draw_menu(self):
+    @staticmethod
+    def draw_menu():
         print("Powiedz co chcesz zrobić: ")
         for shortcut, screen in MainMenu.MENU.items():
             print(f"[{shortcut}] - {screen.DESCRIPTION}")
@@ -50,12 +53,3 @@ class MainMenu():
         while option not in MainMenu.MENU:
             option = input("Wybierz opcję: ")
         return MainMenu.MENU[option]
-
-
-
-
-
-
-
-
-
