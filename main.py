@@ -129,10 +129,10 @@ class Application:
         os.chdir(product_name)
         with open(info_file) as info:
             full_info = info.readlines()
-            new_product.name = full_info[2]
-            new_product.description = ' '.join(full_info[2:])
+            new_product.name = full_info[3]
+            new_product.description = ' '.join(full_info[3:])
             categories = []
-            for cat in full_info[0].split(' '):
+            for cat in full_info[2].split(' '):
                 categories.append({'id': int(cat) })
             new_product.categories = categories
         os.chdir('..')
@@ -226,18 +226,21 @@ class Products_Validator(Application):
         print('Prawidłowe foldery:')
         for name in Products_Validator.VALID:
             print(name)
+        print('----------------------')
 
     @staticmethod
     def report_invalid_thumbnails():
         print('Foldery bez miniaturek:')
         for name in Products_Validator.INVALID_THUMBNAILS:
             print(name)
+        print('----------------------')
 
     @staticmethod
     def report_invalid_info():
         print('Foldery bez pliku info.txt:')
         for name in Products_Validator.INVALID_INFO:
             print(name)
+        print('----------------------')
 
 
 
