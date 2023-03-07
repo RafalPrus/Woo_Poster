@@ -2,7 +2,7 @@ import os
 import requests
 from woocommerce import API
 from config import url_woocommerce, consumer_key, consumer_secret, url_wordpress, username_wordpress, password_wordpress
-from views import MainMenu, Validator_Screen, MainApp_Screen, Exit, Report
+from views import MainMenu, Validator_Screen, MainApp_Screen, Report
 
 
 
@@ -28,8 +28,11 @@ class Application():
             elif isinstance(screen, MainApp_Screen):
                 self.scan_product_folder()
                 self.print_report()
+            elif isinstance(screen, Report):
+                screen.raport_month()
+                screen.raport_recent()
             else:
-                print("See you next time!!!!!!")  # I ended here
+                print("See you next time!!!!!!")
                 return False
 
 
