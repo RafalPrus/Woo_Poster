@@ -27,8 +27,7 @@ class Application:
                 self.scan_product_folder()
                 self.print_report()
             elif isinstance(screen, Report):
-                screen.raport_month()
-                screen.raport_recent()
+                screen.print_report_menu()
             else:
                 print("See you next time!!!!!!")
                 return False

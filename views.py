@@ -10,6 +10,31 @@ class Report:
     def raport_recent(self):
         pass
 
+    @staticmethod
+    def get_timeframe():
+        year = input('Podaj z którego roku chcesz wyświetlić statystyki [YYYY]')
+        month = input('Podaj z którego roku chcesz wyświetlić statystyki [MM]: ')
+        return (month, year)
+
+    def print_report_menu(self):
+        print('Jaki raport chcesz wyświetlić?')
+        print('[M] - z konkretnego miesiąca')
+        print('[R] - ostatnio dodane produkty')
+        self.get_report_option()
+
+    def get_report_option(self):
+        option = input('Wybierz opcje: ')
+        while True:
+            if option.lower() == 'm':
+                self.get_timeframe()
+                break
+            elif option.lower() == 'r':
+                self.raport_recent()
+                break
+            else:
+                print('Niepoprawna opcja. Spróbuj ponownie.')
+
+
 
 class Exit:
     SHORTCUT = 'x'
