@@ -15,8 +15,6 @@ class Application:
     FINISHED = []
     UNFINISHED = []
 
-
-
     def main(self):
         while True:
             menu = MainMenu()
@@ -32,8 +30,6 @@ class Application:
                 print("See you next time!!!!!!")
                 return False
 
-
-
     def add_product(self, new_product) -> None:
         product_details = new_product.set_export_details()
         response = self.WCAPI.post("products", product_details).json()
@@ -47,9 +43,8 @@ class Application:
         print(f'Pomyślnie dodano: {Application.FINISHED}')
 
 
-    def scan_product_folder(self):
-        os.chdir('products')
-        products_folder = os.getcwd()
+    def scan_product_folder(self, products_folder: str = 'products'):
+        products_folder = self.change_directory(products_folder)
         for product_name in os.listdir(products_folder):
             if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
                 try:
@@ -69,8 +64,7 @@ class Application:
 
     # check if folder with thumbnails exist
     def check_thumbnails_exists(self, product_name) -> bool:
-        os.chdir(product_name)
-        product_folder = os.getcwd()
+        product_folder = self.change_directory(product_name)
         if 'small' in os.listdir(product_folder):
             os.chdir('..')
             return True
@@ -80,8 +74,7 @@ class Application:
 
     # check if file info.txt - with product information - exist
     def check_product_info_exists(self, product_name) -> bool:
-        os.chdir(product_name)
-        product_folder = os.getcwd()
+        product_folder = self.change_directory(product_name)
         if 'info.txt' in os.listdir(product_folder):
             os.chdir('..')
             return True
@@ -92,8 +85,7 @@ class Application:
 
     def add_images(self, product_name, new_product):
         os.chdir(product_name)
-        os.chdir('small')
-        images_folder = os.getcwd()
+        images_folder = self.change_directory('small')
         for file_name in os.listdir(images_folder):
             if file_name.endswith(".jpg"):
                 # Open file with image
@@ -109,6 +101,11 @@ class Application:
 
                 self.read_response(response, new_product)
         os.chdir('..')
+
+    def change_directory(self, directory_name: str):
+        os.chdir(directory_name)
+        curr_directory = os.getcwd()
+        return curr_directory
 
 
     def read_response(self, response, product):
