@@ -40,11 +40,18 @@ class Application:
 
 
     def print_report(self):
-        print(f'Pomyślnie dodano: {Application.FINISHED}')
+        print('----------------------')
+        print(f'Pomyślnie dodano: ')
+        for num, name in enumerate(Application.FINISHED, 1):
+            print(f'{num}.: {name}')
+        print('----------------------')
+        print(f'Nie dodano z powodu braków w plikach: ')
+        for num, name in enumerate(Application.UNFINISHED):
+            print(f'{num}.: {name}')
 
 
     def scan_product_folder(self, products_folder: str = 'products'):
-        products_folder = self.change_directory(products_folder)
+        products_folder = Application.change_directory(products_folder)
         for product_name in os.listdir(products_folder):
             if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
                 try:
@@ -54,17 +61,21 @@ class Application:
                     self.add_product(new_product)
                     self.add_images_to_product(new_product)
                     Application.FINISHED.append(new_product.name.strip()) # Add product name to finished list
+                    os.chdir('..')
                 except:
                     if new_product:
                         Application.UNFINISHED.append(new_product.name.strip())
                     else:
                         Application.UNFINISHED.append('Unknown')
+            else:
+                Application.UNFINISHED.append(product_name)
 
 
 
     # check if folder with thumbnails exist
     def check_thumbnails_exists(self, product_name) -> bool:
-        product_folder = self.change_directory(product_name)
+        print(os.getcwd())
+        product_folder = Application.change_directory(product_name)
         if 'small' in os.listdir(product_folder):
             os.chdir('..')
             return True
@@ -74,7 +85,7 @@ class Application:
 
     # check if file info.txt - with product information - exist
     def check_product_info_exists(self, product_name) -> bool:
-        product_folder = self.change_directory(product_name)
+        product_folder = Application.change_directory(product_name)
         if 'info.txt' in os.listdir(product_folder):
             os.chdir('..')
             return True
@@ -85,7 +96,7 @@ class Application:
 
     def add_images(self, product_name, new_product):
         os.chdir(product_name)
-        images_folder = self.change_directory('small')
+        images_folder = Application.change_directory('small')
         for file_name in os.listdir(images_folder):
             if file_name.endswith(".jpg"):
                 # Open file with image
@@ -101,8 +112,8 @@ class Application:
 
                 self.read_response(response, new_product)
         os.chdir('..')
-
-    def change_directory(self, directory_name: str):
+    @staticmethod
+    def change_directory(directory_name: str):
         os.chdir(directory_name)
         curr_directory = os.getcwd()
         return curr_directory
@@ -123,7 +134,7 @@ class Application:
 
     def get_info(self, product_name: str, new_product, info_file='info.txt'):
         os.chdir(product_name)
-        with open(info_file) as info:
+        with open(info_file, encoding='UTF8') as info:
             full_info = info.readlines()
             new_product.name = full_info[3]
             new_product.description = ' '.join(full_info[3:])
