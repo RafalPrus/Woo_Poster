@@ -227,6 +227,7 @@ class Products_Validator(Application):
                 Products_Validator.INVALID_THUMBNAILS.append(product_name)
             elif self.check_product_info_exists(product_name) == False:
                 Products_Validator.INVALID_INFO.append(product_name)
+        os.chdir('..')
 
     @staticmethod
     def report_valid():
