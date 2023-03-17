@@ -38,8 +38,8 @@ class Application:
         print(product_id)
         new_product.product_id = product_id
 
-
-    def print_report(self):
+    @staticmethod
+    def print_report():
         print('----------------------')
         print(f'Pomyślnie dodano: ')
         for num, name in enumerate(Application.FINISHED, 1):
@@ -49,18 +49,17 @@ class Application:
         for num, name in enumerate(Application.UNFINISHED):
             print(f'{num}.: {name}')
 
-
     def scan_product_folder(self, products_folder: str = 'products'):
         products_folder = Application.change_directory(products_folder)
         for product_name in os.listdir(products_folder):
             if self.check_thumbnails_exists(product_name) and self.check_product_info_exists(product_name):
                 try:
                     new_product = Product()
-                    self.get_info(product_name, new_product) # Update class Product with infromations from info.txt file
+                    self.get_info(product_name, new_product)  # Update class Product with infromations from info file
                     self.add_images(product_name, new_product)
                     self.add_product(new_product)
                     self.add_images_to_product(new_product)
-                    Application.FINISHED.append(new_product.name.strip()) # Add product name to finished list
+                    Application.FINISHED.append(new_product.name.strip())  # Add product name to finished list
                     os.chdir('..')
                 except:
                     if new_product:
@@ -69,7 +68,6 @@ class Application:
                         Application.UNFINISHED.append('Unknown')
             else:
                 Application.UNFINISHED.append(product_name)
-
 
 
     # check if folder with thumbnails exist
@@ -84,7 +82,8 @@ class Application:
             return False
 
     # check if file info.txt - with product information - exist
-    def check_product_info_exists(self, product_name) -> bool:
+    @staticmethod
+    def check_product_info_exists(product_name) -> bool:
         product_folder = Application.change_directory(product_name)
         if 'info.txt' in os.listdir(product_folder):
             os.chdir('..')
@@ -94,7 +93,7 @@ class Application:
             return False
 
 
-    def add_images(self, product_name, new_product):
+    def add_images(self, product_name: str, new_product):
         os.chdir(product_name)
         images_folder = Application.change_directory('small')
         for file_name in os.listdir(images_folder):
@@ -146,9 +145,9 @@ class Application:
 
 
 class Product:
-    def __init__(self, name='', descripton='', categories=None, product_id=''):
+    def __init__(self, name='', description='', categories=None, product_id=''):
         self._name = name
-        self._description = descripton
+        self._description = description
         self._categories = categories
         self._product_id = product_id
         self._images_id = []
