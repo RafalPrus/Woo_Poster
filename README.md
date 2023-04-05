@@ -38,6 +38,8 @@ Alfa Romeo Giulia
 Beautiful and fast car from the well-known Italian brand. 
 Available exclusively by order at our dealerships!
 ```
-3. 
+
+You also need to create a config.py file with the access data for the Wordpress and Woocommerce platforms.
+Instructions for generating the required values for Woocommerce can be found here: https://woocommerce.com/document/woocommerce-rest-api/
 
 
