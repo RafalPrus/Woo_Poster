@@ -42,4 +42,8 @@ Available exclusively by order at our dealerships!
 You also need to create a config.py file with the access data for the Wordpress and Woocommerce platforms.
 Instructions for generating the required values for Woocommerce can be found here: https://woocommerce.com/document/woocommerce-rest-api/
 
+## Todo
+- [ ] Add screenshots to the README.md that will help understand how to prepare folders with products.
+- [ ] Add Polish README.md
+
 
